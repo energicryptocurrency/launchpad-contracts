@@ -1,0 +1,214 @@
+stages:
+  - base
+  - prepare
+  - lint
+  - build
+  - test
+
+cache: &global_cache_configuration
+  paths:
+    - node_modules/
+    - artifacts/
+    - cache/
+    - .env
+  policy: pull-push
+
+.merge-request-job:
+  tags: [docker_runner]
+  image: node:18.17-alpine
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+yarn-install:
+  dependencies: []
+  needs: []
+  stage: prepare
+  cache:
+    # inherit all global cache Settings
+    <<: *global_cache_configuration
+    policy: push
+  extends: .merge-request-job
+  script:
+    - cp test/env-unit-test .env
+    - yarn install
+
+lint-es:
+  dependencies: []
+  needs: [yarn-install]
+  stage: lint
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    policy: pull
+  extends: .merge-request-job
+  allow_failure: true
+  script:
+    - yarn run lint-es
+
+lint-sol:
+  dependencies: []
+  needs: [yarn-install]
+  stage: lint
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    policy: pull
+  extends: .merge-request-job
+  allow_failure: true
+  script:
+    - yarn run lint-solidity
+
+build:
+  dependencies: []
+  needs: [lint-es, lint-sol]
+  stage: build
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    # policy: pull
+  extends: .merge-request-job
+  script:
+    - yarn run compile
+
+ERC721 Standard:
+  dependencies: []
+  needs: [build]
+  stage: test
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    policy: pull
+  extends: .merge-request-job
+  script:
+    - npx hardhat test test/GMIERC721.test.js
+  artifacts:
+    when: always
+    paths:
+      - .test-results.xml
+    reports:
+      junit: .test-results.xml
+    expire_in: 2 day
+
+ERC721R Refundable:
+  dependencies: []
+  needs: [build]
+  stage: test
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    policy: pull
+  extends: .merge-request-job
+  script:
+    - npx hardhat test test/GMIERC721R.test.js
+  artifacts:
+    when: always
+    paths:
+      - .test-results.xml
+    reports:
+      junit: .test-results.xml
+    expire_in: 2 day
+
+ERC721 Refundable 80%:
+  dependencies: []
+  needs: [build]
+  stage: test
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    policy: pull
+  extends: .merge-request-job
+  script:
+    - npx hardhat test test/GMIERC721R80.test.js
+  artifacts:
+    when: always
+    paths:
+      - .test-results.xml
+    reports:
+      junit: .test-results.xml
+    expire_in: 2 day
+
+ERC721C Standard:
+  dependencies: []
+  needs: [build]
+  stage: test
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    policy: pull
+  extends: .merge-request-job
+  script:
+    - npx hardhat test test/GMIERC721C.test.js
+  artifacts:
+    when: always
+    paths:
+      - .test-results.xml
+    reports:
+      junit: .test-results.xml
+    expire_in: 2 day
+
+ERC721C Refundable:
+  dependencies: []
+  needs: [build]
+  stage: test
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    policy: pull
+  extends: .merge-request-job
+  script:
+    - npx hardhat test test/GMIERC721RC.test.js
+  artifacts:
+    when: always
+    paths:
+      - .test-results.xml
+    reports:
+      junit: .test-results.xml
+    expire_in: 2 day
+
+ERC721C Refundable 80%:
+  dependencies: []
+  needs: [build]
+  stage: test
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    policy: pull
+  extends: .merge-request-job
+  script:
+    - npx hardhat test test/GMIERC721R80C.test.js
+  artifacts:
+    when: always
+    paths:
+      - .test-results.xml
+    reports:
+      junit: .test-results.xml
+    expire_in: 2 day
+
+Operator Registry:
+  dependencies: []
+  needs: [build]
+  stage: test
+  cache:
+    # inherit all global cache settings
+    <<: *global_cache_configuration
+    # override the policy
+    policy: pull
+  extends: .merge-request-job
+  script:
+    - npx hardhat test test/OperatorRegistry.test.js
+  artifacts:
+    when: always
+    paths:
+      - .test-results.xml
+    reports:
+      junit: .test-results.xml
+    expire_in: 2 day
