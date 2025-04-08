@@ -46,7 +46,7 @@ ETHERSCAN_API_KEY='Etherscan api key'
 **Run test cases**
 
 ```sh
-npx hardhat test
+yarn test
 ```
 
 **Format code**

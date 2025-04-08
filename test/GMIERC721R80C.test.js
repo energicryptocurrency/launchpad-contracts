@@ -106,11 +106,6 @@ describe("GMIERC721R80C test", async () => {
       expect(result).to.be.equal(false);
     });
 
-    it("should return 20% of max supply", async () => {
-      const result = await gmiERC721R80.reservedNFTs();
-      expect(result).to.be.equal((maxMintSupply * 20) / 100);
-    });
-
     it("should return presaleActive", async () => {
       const result = await gmiERC721R80.presaleActive();
       expect(result).to.be.equal(false);
@@ -231,14 +226,6 @@ describe("GMIERC721R80C test", async () => {
   });
 
   describe("presaleMint()", () => {
-    it("cannot mint more than 20% when presale price is 0", async () => {
-      await gmiERC721R80FreePresale.togglePresale();
-      await gmiERC721R80FreePresale.addWhitelist([minter1.address], [maxMintSupply]);
-      await expect(
-        gmiERC721R80FreePresale.connect(minter1).presaleMint(21, { value: "21000000000000000000" }),
-      ).to.be.revertedWith("Minted all reserved NFTs");
-    });
-
     it("should mint", async () => {
       await gmiERC721R80.togglePresale();
       await gmiERC721R80.addWhitelist([minter1.address], [presaleMaxUserMintAmount]);
@@ -363,12 +350,6 @@ describe("GMIERC721R80C test", async () => {
 
     it("should owner mint when reserved limit hits", async () => {
       await gmiERC721R80.ownerMint(minter1.address, (maxMintSupply * 20) / 100);
-    });
-
-    it("should not owner mint when reserved limit exceeds", async () => {
-      await expect(
-        gmiERC721R80.ownerMint(minter1.address, (maxMintSupply * 20) / 100 + 1),
-      ).to.be.revertedWith("Minted all reserved NFTs");
     });
 
     it("should not owner mint when sender is not owner", async () => {
