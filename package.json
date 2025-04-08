@@ -1,6 +1,6 @@
 {
   "name": "gmi-launchpad-contracts",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "GMI Launchpad creates NFT collections with few clicks of button.",
   "author": "Energi Core LTD <contact@energi.team>",
   "main": "hardhat.config.js",

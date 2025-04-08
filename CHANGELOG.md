@@ -1,5 +1,11 @@
 # GMI Launchpad Contracts Changelog
 
+## v1.1.1
+
+### Changed
+
+- Removed 20% free mint cap
+
 ## v1.1.0
 
 ### New

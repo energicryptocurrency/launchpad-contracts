@@ -28,10 +28,9 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
-import { FixedPoint } from "../lib/FixedPoint.sol";
 import { OperatorFilter } from "../lib/OperatorFilter.sol";
 
-contract GMIERC721RC is ERC721Enumerable, Ownable, Pausable, ReentrancyGuard, FixedPoint, OperatorFilter {
+contract GMIERC721RC is ERC721Enumerable, Ownable, Pausable, ReentrancyGuard, OperatorFilter {
     uint256 public maxMintSupply; // Max mintable supply
     uint256 public mintPrice; // Mint price
     uint256 public maxUserMintAmount; // Max mintable amount per user
@@ -39,8 +38,6 @@ contract GMIERC721RC is ERC721Enumerable, Ownable, Pausable, ReentrancyGuard, Fi
     uint256 public mintedAmount; // Tracks minted amount
     uint256 public refundCounter; // Tracks number of refunded NFT
     uint256 public totalMints; // Number of freshly minted NFTs
-    uint256 public reservedNFTs; // NFTs to be minted by owner
-    uint256 public reservedMints; // Reserved NFTs minted
 
     uint256[] public refundedTokenIds; // Refunded tokenIds
 
@@ -170,7 +167,6 @@ contract GMIERC721RC is ERC721Enumerable, Ownable, Pausable, ReentrancyGuard, Fi
         presaleMaxUserMintAmount = presaleMaxUserMintAmount_;
         presaleMaxTxMintAmount = presaleMaxTxMintAmount_;
         _transferOwnership(owner_);
-        reservedNFTs = FixedPoint.getPercentageOf(maxMintSupply_, 20); // 20% of maxMintSupply
     }
 
     /**
@@ -208,11 +204,6 @@ contract GMIERC721RC is ERC721Enumerable, Ownable, Pausable, ReentrancyGuard, Fi
     function presaleMint(uint256 _quantity) external payable whenNotPaused noContracts nonReentrant {
         require(presaleActive, "Presale is not active");
         require(whitelists[msg.sender] > 0, "Not whitelisted");
-
-        if (presaleMintPrice == 0) {
-            require(reservedMints + _quantity <= reservedNFTs, "Minted all reserved NFTs");
-            reservedMints += _quantity;
-        }
 
         _mintTokens(
             msg.sender,
@@ -266,7 +257,6 @@ contract GMIERC721RC is ERC721Enumerable, Ownable, Pausable, ReentrancyGuard, Fi
      */
     function ownerMint(address _to, uint256 _quantity) external onlyOwner nonReentrant {
         require(mintedAmount + _quantity <= maxMintSupply, "Max supply");
-        require(reservedMints + _quantity <= reservedNFTs, "Minted all reserved NFTs");
         mintedAmount += _quantity;
 
         for (uint256 i = 0; i < _quantity; i++) {
@@ -283,8 +273,6 @@ contract GMIERC721RC is ERC721Enumerable, Ownable, Pausable, ReentrancyGuard, Fi
                 totalMints += 1;
             }
         }
-
-        reservedMints += _quantity;
 
         emit OwnerMinted(_to, _quantity);
     }

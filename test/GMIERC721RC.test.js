@@ -103,11 +103,6 @@ describe("GMIERC721RC test", async () => {
       expect(result).to.be.equal(false);
     });
 
-    it("should return 20% of max supply", async () => {
-      const result = await gmiERC721R.reservedNFTs();
-      expect(result).to.be.equal((maxMintSupply * 20) / 100);
-    });
-
     it("should return presaleActive", async () => {
       const result = await gmiERC721R.presaleActive();
       expect(result).to.be.equal(false);
@@ -225,27 +220,6 @@ describe("GMIERC721RC test", async () => {
   });
 
   describe("presaleMint()", () => {
-    it("cannot mint more than 20% when presale price is 0", async () => {
-      await gmiERC721RFreePresale.togglePresale();
-      await gmiERC721RFreePresale.addWhitelist([minter1.address], [maxMintSupply]);
-      await expect(
-        gmiERC721RFreePresale.connect(minter1).presaleMint(21, { value: "21000000000000000000" }),
-      ).to.be.revertedWith("Minted all reserved NFTs");
-    });
-
-    it("should mint", async () => {
-      await gmiERC721R.togglePresale();
-      await gmiERC721R.addWhitelist([minter1.address], [presaleMaxUserMintAmount]);
-      await gmiERC721R.connect(minter1).presaleMint(1, { value: presaleMintPrice });
-
-      const balance = await gmiERC721R.balanceOf(minter1.address);
-      expect(balance).to.be.equal(1);
-      const numberMinted = await gmiERC721R.presaleNumberMinted(minter1.address);
-      expect(numberMinted).to.be.equal(1);
-      const mintedAmount = await gmiERC721R.mintedAmount();
-      expect(mintedAmount).to.be.equal(1);
-    });
-
     it("should mint more than 1 NFT", async () => {
       await gmiERC721R.addWhitelist([minter1.address], [presaleMaxUserMintAmount]);
       await gmiERC721R.togglePresale();
@@ -332,12 +306,6 @@ describe("GMIERC721RC test", async () => {
 
     it("should owner mint when reserved limit hits", async () => {
       await gmiERC721R.ownerMint(minter1.address, (maxMintSupply * 20) / 100);
-    });
-
-    it("should not owner mint when reserved limit exceeds", async () => {
-      await expect(
-        gmiERC721R.ownerMint(minter1.address, (maxMintSupply * 20) / 100 + 1),
-      ).to.be.revertedWith("Minted all reserved NFTs");
     });
 
     it("should not owner mint when sender is not owner", async () => {
