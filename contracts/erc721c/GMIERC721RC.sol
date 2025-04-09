@@ -58,6 +58,11 @@ contract GMIERC721RC is ERC721Enumerable, Ownable, Pausable, ReentrancyGuard, Op
     string public VERSION = "1.0.0";
 
     /**
+     * @dev triggered afer collection is deployed
+     */
+    event CollectionLaunched(address collectionAddress, string name, string symbol);
+
+    /**
      * @dev triggered afet NFT is refunded
      */
     event Refund(address indexed user, uint256 tokenId, uint256 tokenAmount);
@@ -167,6 +172,8 @@ contract GMIERC721RC is ERC721Enumerable, Ownable, Pausable, ReentrancyGuard, Op
         presaleMaxUserMintAmount = presaleMaxUserMintAmount_;
         presaleMaxTxMintAmount = presaleMaxTxMintAmount_;
         _transferOwnership(owner_);
+
+        emit CollectionLaunched(address(this), name_, symbol_);
     }
 
     /**

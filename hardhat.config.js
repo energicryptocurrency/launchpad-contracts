@@ -48,6 +48,8 @@ module.exports = {
     apiKey: {
       energiTestnet: "xxxxx-no-api-key-needed-xxxxx",
       energiMainnet: "xxxxx-no-api-key-needed-xxxxx",
+      sepolia: process.env.ETHERSCAN_API_KEY,
+      mainnet: process.env.ETHERSCAN_API_KEY,
     },
     customChains: [
       {
