@@ -53,6 +53,11 @@ contract GMIERC721C is ERC721A, ERC2981, Ownable, Pausable, OperatorFilter {
     string public VERSION = "1.0.0";
 
     /**
+     * @dev triggered afer collection is deployed
+     */
+    event CollectionLaunched(address collectionAddress, string name, string symbol);
+
+    /**
      * @dev triggered afer maxUserMintAmount is changed
      */
     event MaxUserMintAmountChanged(uint256 newMaxUserMintAmount);
@@ -161,6 +166,8 @@ contract GMIERC721C is ERC721A, ERC2981, Ownable, Pausable, OperatorFilter {
         presaleMaxUserMintAmount = presaleMaxUserMintAmount_;
         presaleMaxTxMintAmount = presaleMaxTxMintAmount_;
         _transferOwnership(owner_);
+
+        emit CollectionLaunched(address(this), name_, symbol_);
     }
 
     /**
